@@ -8,6 +8,10 @@ Colección de utilidades (mods) para Claude Code: herramientas para Claude. Cada
 | --- | --- |
 | [`clean-view`](plugins/clean-view) | Vista simple: panel de pasos en español sobre el cuadro de texto, filas técnicas de herramientas ocultas y comando `/simple`. |
 
+## Skills
+
+Además de los mods, el repo incluye 6 skills (`SKILL.md`) reutilizables en Claude Code y opencode: `entrevistador-procesos`, `humanizador`, `optimizador-prompts`, `presentaciones-visuales`, `superpowers` y `verificador-datos`. Lista y manual de instalación en [`skills/README.md`](skills/README.md).
+
 ## Instalación
 
 En una sesión de terminal:
