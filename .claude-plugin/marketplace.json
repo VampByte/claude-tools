@@ -1,0 +1,14 @@
+{
+  "name": "claude-tools",
+  "owner": {
+    "name": "vampbyte"
+  },
+  "description": "claude-tools: utilidades (mods) para Claude Code.",
+  "plugins": [
+    {
+      "name": "clean-view",
+      "source": "./plugins/clean-view",
+      "description": "Vista simple: panel de pasos en español y filas técnicas ocultas."
+    }
+  ]
+}

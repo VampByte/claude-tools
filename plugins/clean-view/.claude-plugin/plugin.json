@@ -1,0 +1,7 @@
+{
+  "name": "clean-view",
+  "version": "0.1.0",
+  "description": "Vista simple: panel de pasos en español sobre el cuadro de texto y filas técnicas de herramientas ocultas.",
+  "author": { "name": "vampbyte" },
+  "types": "./types/index.d.ts"
+}
