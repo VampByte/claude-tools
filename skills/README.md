@@ -10,6 +10,7 @@ Skills en formato `SKILL.md` (estándar "Agent Skills"). El mismo archivo funcio
 | [`humanizador`](humanizador) | Reescribe textos generados por IA para que suenen naturales, directos y creíbles. |
 | [`optimizador-prompts`](optimizador-prompts) | Convierte ideas desordenadas o prompts flojos en prompts claros y estructurados para cualquier herramienta de IA. |
 | [`presentaciones-visuales`](presentaciones-visuales) | Crea presentaciones HTML modernas, listas para el navegador, a partir de una idea o documento. |
+| [`jsk-opencode`](jsk-opencode) | Delega tareas sencillas a MiniMax-M3 vía `opencode run` para ahorrar tokens; Claude revisa siempre el resultado. Solo Claude Code (requiere `opencode` instalado); se invoca con `/jsk-opencode`. |
 | [`verificador-datos`](verificador-datos) | Revisa textos y comprueba si sus afirmaciones son correctas, exageradas o no verificables. |
 
 > **`superpowers` no está aquí.** Es un plugin del marketplace de Claude Code; instálalo desde ahí en vez de copiar una skill:
@@ -42,14 +43,14 @@ PowerShell:
 
 ```powershell
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
-Copy-Item -Recurse -Force .\entrevistador-procesos, .\humanizador, .\optimizador-prompts, .\presentaciones-visuales, .\verificador-datos "$env:USERPROFILE\.claude\skills\"
+Copy-Item -Recurse -Force .\entrevistador-procesos, .\humanizador, .\jsk-opencode, .\optimizador-prompts, .\presentaciones-visuales, .\verificador-datos "$env:USERPROFILE\.claude\skills\"
 ```
 
 Bash / Git Bash / macOS / Linux:
 
 ```bash
 mkdir -p ~/.claude/skills
-cp -r entrevistador-procesos humanizador optimizador-prompts presentaciones-visuales verificador-datos ~/.claude/skills/
+cp -r entrevistador-procesos humanizador jsk-opencode optimizador-prompts presentaciones-visuales verificador-datos ~/.claude/skills/
 ```
 
 ### Instalar solo una (o en un proyecto)
