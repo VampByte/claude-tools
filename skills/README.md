@@ -10,10 +10,15 @@ Skills en formato `SKILL.md` (estándar "Agent Skills"). El mismo archivo funcio
 | [`humanizador`](humanizador) | Reescribe textos generados por IA para que suenen naturales, directos y creíbles. |
 | [`optimizador-prompts`](optimizador-prompts) | Convierte ideas desordenadas o prompts flojos en prompts claros y estructurados para cualquier herramienta de IA. |
 | [`presentaciones-visuales`](presentaciones-visuales) | Crea presentaciones HTML modernas, listas para el navegador, a partir de una idea o documento. |
-| [`superpowers`](superpowers) | Modo de trabajo riguroso para proyectos complejos: entender, planificar, detectar riesgos y recién después construir. |
 | [`verificador-datos`](verificador-datos) | Revisa textos y comprueba si sus afirmaciones son correctas, exageradas o no verificables. |
 
-> **Ojo con `superpowers`:** si ya tienes instalado el plugin `superpowers` en Claude Code, el nombre colisiona. En ese caso no la instales. En opencode no hay problema.
+> **`superpowers` no está aquí.** Es un plugin del marketplace de Claude Code; instálalo desde ahí en vez de copiar una skill:
+>
+> ```
+> /plugin install superpowers@anthropic-plugin-directory
+> ```
+>
+> No hay equivalente en este repo para opencode.
 
 ## Obtener las skills
 
@@ -37,14 +42,14 @@ PowerShell:
 
 ```powershell
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
-Copy-Item -Recurse -Force .\entrevistador-procesos, .\humanizador, .\optimizador-prompts, .\presentaciones-visuales, .\verificador-datos, .\superpowers "$env:USERPROFILE\.claude\skills\"
+Copy-Item -Recurse -Force .\entrevistador-procesos, .\humanizador, .\optimizador-prompts, .\presentaciones-visuales, .\verificador-datos "$env:USERPROFILE\.claude\skills\"
 ```
 
 Bash / Git Bash / macOS / Linux:
 
 ```bash
 mkdir -p ~/.claude/skills
-cp -r entrevistador-procesos humanizador optimizador-prompts presentaciones-visuales verificador-datos superpowers ~/.claude/skills/
+cp -r entrevistador-procesos humanizador optimizador-prompts presentaciones-visuales verificador-datos ~/.claude/skills/
 ```
 
 ### Instalar solo una (o en un proyecto)
@@ -76,14 +81,14 @@ PowerShell:
 
 ```powershell
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.config\opencode\skill" | Out-Null
-Copy-Item -Recurse -Force .\entrevistador-procesos, .\humanizador, .\optimizador-prompts, .\presentaciones-visuales, .\verificador-datos, .\superpowers "$env:USERPROFILE\.config\opencode\skill\"
+Copy-Item -Recurse -Force .\entrevistador-procesos, .\humanizador, .\optimizador-prompts, .\presentaciones-visuales, .\verificador-datos "$env:USERPROFILE\.config\opencode\skill\"
 ```
 
 Bash:
 
 ```bash
 mkdir -p ~/.config/opencode/skill
-cp -r entrevistador-procesos humanizador optimizador-prompts presentaciones-visuales verificador-datos superpowers ~/.config/opencode/skill/
+cp -r entrevistador-procesos humanizador optimizador-prompts presentaciones-visuales verificador-datos ~/.config/opencode/skill/
 ```
 
 Permisos (opcional) en `opencode.json`, para permitir solo algunas:
@@ -116,7 +121,7 @@ Permisos (opcional) en `opencode.json`, para permitir solo algunas:
 
    ```bash
    mkdir -p ~/.opencode/skills        # global
-   cp -r entrevistador-procesos humanizador optimizador-prompts presentaciones-visuales verificador-datos superpowers ~/.opencode/skills/
+   cp -r entrevistador-procesos humanizador optimizador-prompts presentaciones-visuales verificador-datos ~/.opencode/skills/
    ```
 
    Para un proyecto: `.opencode/skills/` en su raíz.

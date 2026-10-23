@@ -10,7 +10,7 @@ Colección de utilidades (mods) para Claude Code: herramientas para Claude. Cada
 
 ## Skills
 
-Además de los mods, el repo incluye 6 skills (`SKILL.md`) reutilizables en Claude Code y opencode: `entrevistador-procesos`, `humanizador`, `optimizador-prompts`, `presentaciones-visuales`, `superpowers` y `verificador-datos`. Lista y manual de instalación en [`skills/README.md`](skills/README.md).
+Además de los mods, el repo incluye 5 skills (`SKILL.md`) reutilizables en Claude Code y opencode: `entrevistador-procesos`, `humanizador`, `optimizador-prompts`, `presentaciones-visuales` y `verificador-datos`. Lista y manual de instalación en [`skills/README.md`](skills/README.md).
 
 ## Instalación
 
