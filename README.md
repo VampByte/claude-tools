@@ -14,7 +14,7 @@ Además de los mods, el repo incluye 6 skills (`SKILL.md`) para Claude Code (tod
 
 ## Guías
 
-- [`docs/herdr-git-bash-starship.md`](docs/herdr-git-bash-starship.md): Git Bash con prompt Starship en la Herdr app (Windows), paso a paso.
+- [`docs/herdr-git-bash-starship.md`](docs/herdr-git-bash-starship.md): Git Bash con prompt Starship en Windows, paso a paso: Herdr app, Git Bash independiente (mintty) y VS Code.
 
 ## Instalación
 
