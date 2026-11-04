@@ -1,6 +1,6 @@
 ---
 name: jsk-opencode
-description: Delega tareas sencillas y verificables (lecturas, consultas, ediciones mecánicas, cargas repetitivas) a MiniMax-M3 vía `opencode run` para ahorrar tokens de Claude; Claude planifica y revisa siempre el resultado. Úsalo con /jsk-opencode o cuando el usuario diga "delega a opencode", "usa minimax", "ahorra tokens" o pida repetir una tarea mecánica muchas veces.
+description: Delega tareas sencillas y verificables (lecturas, consultas, ediciones mecánicas, cargas repetitivas) a MiniMax-M3 vía `opencode run` para ahorrar tokens de Claude; Claude planifica y revisa siempre el resultado. Úsalo con /jsk-opencode, cuando el usuario diga "delega a opencode", "usa minimax" o "ahorra tokens", y también cuando haya que repetir una tarea mecánica muchas veces, aunque no nombre opencode.
 ---
 
 # jsk-opencode
@@ -29,11 +29,11 @@ Si dudas entre delegar o no, no delegues: ahorrar tokens no compensa un resultad
 opencode run -m minimax-coding-plan/MiniMax-M3 "tarea completa y autocontenida"
 ```
 
-- Modelo por defecto: `minimax-coding-plan/MiniMax-M3`. `minimax-coding-plan/MiniMax-M3.1-Flash` también existe; es más lento en pruebas simples, úsalo solo si el usuario lo pide.
-- Comprueba que existe con `opencode models | grep -i minimax` si el comando falla.
+- Modelo por defecto: `minimax-coding-plan/MiniMax-M3`. `minimax-coding-plan/MiniMax-M3.1-Flash` también existe, pero fue más lento en pruebas simples: úsalo solo si el usuario lo pide.
+- Si el comando falla, comprueba que el modelo existe con `opencode models | grep -i minimax`.
 - El agente no ve esta conversación: el prompt debe llevar todo el contexto (qué hacer, dónde, formato exacto de la respuesta, qué NO tocar). Pide una respuesta corta y estructurada que puedas verificar.
 - Usa `--file` para adjuntar un archivo de contexto cuando haga falta; `--format json` si vas a procesar la salida.
-- No uses `--auto` en tareas que escriben: aprueba permisos sin preguntar. Solo con instrucciones muy acotadas y reversibles.
+- No uses `--auto` en tareas que escriben, porque aprueba permisos sin preguntar; solo con instrucciones muy acotadas y reversibles.
 - Pon un timeout razonable (por ejemplo `timeout 150`) y un límite claro de alcance. Para varias tareas independientes puedes lanzar varias llamadas en paralelo.
 
 ## Antes de delegar
