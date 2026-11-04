@@ -10,7 +10,11 @@ Colección de utilidades (mods) para Claude Code: herramientas para Claude. Cada
 
 ## Skills
 
-Además de los mods, el repo incluye 5 skills (`SKILL.md`) reutilizables en Claude Code y opencode: `entrevistador-procesos`, `humanizador`, `optimizador-prompts`, `presentaciones-visuales` y `verificador-datos`. Lista y manual de instalación en [`skills/README.md`](skills/README.md).
+Además de los mods, el repo incluye 6 skills (`SKILL.md`) para Claude Code (todas menos `jsk-opencode` también sirven en opencode): `entrevistador-procesos`, `humanizador`, `jsk-opencode`, `optimizador-prompts`, `presentaciones-visuales` y `verificador-datos`. Lista y manual de instalación en [`skills/README.md`](skills/README.md).
+
+## Guías
+
+- [`docs/herdr-git-bash-starship.md`](docs/herdr-git-bash-starship.md): Git Bash con prompt Starship en la Herdr app (Windows), paso a paso.
 
 ## Instalación
 
