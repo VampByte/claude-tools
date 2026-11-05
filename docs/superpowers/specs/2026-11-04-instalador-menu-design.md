@@ -30,8 +30,7 @@ installer/
   comun.py                        # Rutas, backup(), escribir_conservando_eol(), winget(), jsonc_set(), which()
   componentes/
     __init__.py                   # lista ordenada COMPONENTES
-    skills_claude.py              # copia skills/<6> a ~/.claude/skills/
-    skills_opencode.py            # copia 5 skills (sin jsk-opencode) a ~/.config/opencode/skills/
+    skills.py                     # SkillsClaude (6 a ~/.claude/skills/) y SkillsOpencode (5, sin jsk-opencode)
     clean_view.py                 # marketplace add + plugin install; estado desde installed_plugins.json
     starship.py                   # pasos 1-7 de abajo, cada uno idempotente
   plantillas/

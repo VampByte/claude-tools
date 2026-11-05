@@ -4,6 +4,13 @@ Guía para dejar **Git Bash dentro de la Herdr app** (y también fuera de ella) 
 (directorio, rama de git con icono, estado y flecha), y poder replicarlo en otra laptop Windows.
 Probado en Windows 11, Herdr app + herdr-core, Git for Windows (UCRT64) y Starship 1.27.0.
 
+> **Atajo:** `python instalar.py` (en la raíz del repo), opción **4 "Starship y terminales"**, hace los pasos 1, 2,
+> 3, 5 (menú "+"), 7a, 7b, 7c y 7d por ti. Si falta Git, Herdr o VS Code, avisa y salta esas partes. Antes de cambiar un archivo
+> guarda una copia en `~/.claude-tools-backup/<fecha>/`. Esta guía explica qué hace cada paso y sirve para hacerlo a mano.
+>
+> Los archivos de configuración tienen **una sola copia**, en [`installer/plantillas/`](../installer/plantillas/):
+> el instalador los usa tal cual y esta guía enlaza a ellos.
+
 Resultado esperado:
 
 ```
@@ -68,6 +75,9 @@ sale un cuadrado o un hueco. Se usa la variante **Mono** (iconos de una sola cel
 "font_size": 16
 ```
 
+   Herdr ya trae una clave `font` con otra fuente (en la laptop de casa era `"Cascadia Code"`): hay que **cambiar
+   su valor**, no añadir otra clave `font`.
+
    El nombre debe ser exactamente la familia de la fuente. Se puede comprobar con:
 
 ```powershell
@@ -82,53 +92,23 @@ $p.Families[0].Name        # FiraCode Nerd Font Mono
 
 ## Paso 3: `.bashrc`, `.bash_profile` y `starship.toml` en el perfil local
 
-`C:\Users\<usuario>\.bashrc`. No lleva el usuario escrito (usa variables de Windows) y la guarda del
-principio evita ensuciar shells no interactivos (p. ej. la herramienta Bash de Claude Code):
+Tres archivos, copiados tal cual de las plantillas (con saltos de línea **LF**: con CRLF Bash falla):
+
+| Destino | Plantilla | Qué hace |
+|---|---|---|
+| `C:\Users\<usuario>\.bashrc` | [`bashrc`](../installer/plantillas/bashrc) | Solo en shells interactivos (no ensucia la salida de herramientas como la Bash de Claude Code); añade Starship al PATH si el PATH heredado aún no lo tiene; fija `STARSHIP_CONFIG` en el perfil local (por si `HOME` es otra unidad) y ejecuta `starship init bash`. No lleva el usuario escrito: sirve en cualquier laptop. |
+| `C:\Users\<usuario>\.bash_profile` | [`bash_profile`](../installer/plantillas/bash_profile) | Los shells de login (`bash --login`) leen este archivo y no `.bashrc`: lo carga. |
+| `C:\Users\<usuario>\.config\starship.toml` | [`starship.toml`](../installer/plantillas/starship.toml) | El estilo del prompt (UTF-8; contiene el carácter `➜`). |
+
+Copiarlos a mano desde la raíz del repo (Git Bash):
 
 ```bash
-# Solo shells interactivos: no ensuciar la salida de herramientas (p. ej. la herramienta Bash de Claude Code)
-case $- in *i*) ;; *) return ;; esac
-
-# Rutas derivadas de variables de Windows (sin usuario escrito a fuego): sirve en cualquier laptop.
-# Respaldo: si el PATH heredado aun no incluye Starship (instalado con winget), anade su carpeta
-command -v starship >/dev/null 2>&1 || PATH="$PATH:$(cygpath -u "$LOCALAPPDATA")/Microsoft/WinGet/Packages/Starship.Starship_Microsoft.Winget.Source_8wekyb3d8bbwe"
-
-# Starship es un .exe nativo; si HOME apunta a otra unidad (p. ej. U:\) no encontraria su config en C:
-export STARSHIP_CONFIG="$(cygpath -m "$USERPROFILE")/.config/starship.toml"
-
-command -v starship >/dev/null 2>&1 && eval "$(starship init bash)"
+cp installer/plantillas/bashrc ~/.bashrc
+cp installer/plantillas/bash_profile ~/.bash_profile
+mkdir -p ~/.config && cp installer/plantillas/starship.toml ~/.config/starship.toml
 ```
 
-`C:\Users\<usuario>\.bash_profile` (los shells de login, `bash --login`, leen este archivo, no `.bashrc`):
-
-```bash
-[ -f ~/.bashrc ] && . ~/.bashrc
-```
-
-`C:\Users\<usuario>\.config\starship.toml` (UTF-8; contiene el carácter `➜`):
-
-```toml
-# Estilo: directorio en cian, "on" en gris, rama en magenta, [?] en rojo, flecha verde en segunda linea
-add_newline = true
-format = "$directory$git_branch$git_status$line_break$character"
-
-[directory]
-style = "bold cyan"
-truncation_length = 4
-truncate_to_repo = true
-use_os_path_sep = false
-
-[git_branch]
-format = "[on](bright-black) [$symbol$branch]($style) "
-style = "bold purple"
-
-[git_status]
-style = "bold red"
-
-[character]
-success_symbol = "[➜](bold green)"
-error_symbol = "[➜](bold red)"
-```
+El repo tiene un `.gitattributes` que mantiene LF en `installer/plantillas/`, aunque Git para Windows convierta a CRLF el resto.
 
 Los colores exactos de cian/magenta/rojo/gris salen del **tema de Herdr** (paleta `ansi` del tema activo),
 no de Starship.
@@ -179,40 +159,17 @@ comprobar si la entrada del menú sale como instalada.
 ### Entrada en el menú "+" de la barra de pestañas
 
 `C:\Users\<usuario>\.config\herdr-app\programs.json` (se aplica en vivo; si el JSON es inválido, Herdr lo dice
-en `programs.error`):
+en `programs.error`): contenido de la plantilla [`programs.json`](../installer/plantillas/programs.json). Si ya tienes otros programas
+en ese archivo, añade solo la entrada `git-bash` dentro de `programs` (el instalador lo hace así).
 
-```json
-{
-  "programs": {
-    "git-bash": {
-      "name": "Git Bash",
-      "icon": "icons/git.svg",
-      "tint": true,
-      "tile": "#f05032",
-      "color": "#ffffff",
-      "run": ["C:/PROGRA~1/Git/bin/bash.exe", "--login", "-i"]
-    }
-  }
-}
-```
-
-### (Opcional) Que `ctrl-shift-t` abra Git Bash
-
-En `keys.json`, sección `global`, cambia `"ctrl-shift-t": "tab.new"` por:
-
-```json
-"ctrl-shift-t": {"command": "tab.new", "args": {"argv": ["C:/PROGRA~1/Git/bin/bash.exe", "--login", "-i"]}},
-```
-
-Consecuencias: solo cambia el teclado (el botón "+" y su fila "Terminal" siguen abriendo PowerShell, porque
-ese menú lo tiene fijo el mod `new-menu`); y al editar `keys.json`, Herdr deja de añadirle atajos nuevos en
-futuras versiones.
+PowerShell sigue siendo la terminal por defecto (atajos y fila "Terminal"); Git Bash se abre desde su entrada del
+menú "+". Hacer de Git Bash la terminal por defecto se probó y se descartó: ver
+[Probado y descartado](#probado-y-descartado-git-bash-como-terminal-por-defecto-en-herdr).
 
 ## Paso 6: comprobar
 
 1. **Reinicia Herdr** (carga la fuente y el PATH nuevo).
-2. Abre una pestaña nueva: menú "+" → Git Bash, o `ctrl-shift-t` si lo configuraste. Las pestañas
-   abiertas antes no cambian.
+2. Abre una pestaña nueva: menú "+" → Git Bash. Las pestañas abiertas antes no cambian.
 3. Debe salir el directorio y la flecha `➜`. Entra en un repo (`cd /c/ruta/de/un/repo`) y debe aparecer
    `on  main`. Si el icono sale como cuadrado o hueco, la fuente no se cargó (reinicia Herdr y revisa el
    nombre de familia del Paso 2).
@@ -263,35 +220,9 @@ Add-Type -AssemblyName System.Drawing
 
 La ruta es `~/.minttyrc`, y `~` es **el `HOME` del Paso 0**: `C:\Users\<usuario>\.minttyrc` en un equipo normal,
 `U:\.minttyrc` en el equipo con carpeta de red. Si ya existe, no lo sobrescribas: añade o cambia solo estas claves.
-Los colores son los del tema `ocean-high-contrast` de Herdr
-(`~/.config/herdr-app/themes/ocean-high-contrast.json`) pasados de `#rrggbb` a `r,g,b`:
-
-```ini
-Font=FiraCode Nerd Font Mono
-FontHeight=12
-FontSmoothing=default
-
-BackgroundColour=5,7,13
-ForegroundColour=238,255,255
-CursorColour=255,204,0
-
-Black=31,34,51
-Red=240,113,120
-Green=195,232,141
-Yellow=255,203,107
-Blue=130,170,255
-Magenta=199,146,234
-Cyan=137,221,255
-White=238,255,255
-BoldBlack=84,110,122
-BoldRed=255,83,112
-BoldGreen=195,232,141
-BoldYellow=255,203,107
-BoldBlue=130,170,255
-BoldMagenta=199,146,234
-BoldCyan=137,221,255
-BoldWhite=255,255,255
-```
+El contenido está en la plantilla [`minttyrc`](../installer/plantillas/minttyrc) (fuente `FiraCode Nerd Font Mono`, `FontHeight=12` y
+los colores del tema `ocean-high-contrast` de Herdr, `~/.config/herdr-app/themes/ocean-high-contrast.json`, pasados
+de `#rrggbb` a `r,g,b`). El instalador solo cambia o añade esas claves y conserva las demás que tengas.
 
 Con otro tema de Herdr, convierte sus 16 colores `ansi` (índices 0 a 7 → `Black`…`White`, 8 a 15 → `BoldBlack`…`BoldWhite`).
 `FontHeight=12` (puntos) equivale aproximadamente a los 16 px de Herdr; ajústalo si se ve pequeño o grande.
@@ -322,8 +253,47 @@ hay que anclar el nuevo.
 
 ### 7d. Terminal de VS Code
 
-Ajuste `terminal.integrated.fontFamily` = `FiraCode Nerd Font Mono` (requiere haber hecho el 7a). El prompt de
-Starship ya funciona ahí si el perfil de terminal de VS Code es Git Bash (`--login -i`).
+Para que la terminal integrada abra Git Bash con Starship, en el `settings.json` de usuario
+(`%APPDATA%\Code\User\settings.json`) hacen falta tres claves de primer nivel (la fuente requiere el 7a):
+
+```json
+"terminal.integrated.defaultProfile.windows": "Git Bash",
+"terminal.integrated.profiles.windows": {
+    "Git Bash": {
+        "path": "C:/Program Files/Git/bin/bash.exe",
+        "args": ["--login", "-i"],
+        "icon": "terminal-bash"
+    }
+},
+"terminal.integrated.fontFamily": "FiraCode Nerd Font Mono",
+```
+
+- VS Code trae por defecto `Command Prompt` (o PowerShell): ahí Starship no aparece, aunque `.bashrc` esté bien.
+- El perfil se define a mano con `--login -i` para no depender del que VS Code detecta solo.
+- Escribe la ruta con barras `/`. Con `\` sin duplicar (`"C:\Program Files\..."`) el JSON deja de ser válido y
+  VS Code ignora el archivo entero.
+- Si `terminal.integrated.profiles.windows` ya existe, añade `"Git Bash"` dentro en vez de crear otra clave igual.
+- Las terminales ya abiertas no cambian: abre una nueva (y reinicia VS Code si el icono de la rama sale como cuadrado).
+
+## Probado y descartado: Git Bash como terminal por defecto en Herdr
+
+Herdr **no tiene opción de "shell por defecto"**: cuando una acción no lleva `argv`, el core abre PowerShell. Para
+que todo abriera Git Bash hubo que tocar dos sitios:
+
+- `keys.json`, sección `global`: poner `argv` en `ctrl-shift-t` (`tab.new`), `ctrl-shift-n` (`space.new`) y
+  `ctrl-shift-o` / `ctrl-shift-e` (`pane.split`), con la forma
+  `{"command": "tab.new", "args": {"argv": ["C:/PROGRA~1/Git/bin/bash.exe", "--login", "-i"]}}`.
+- Los mods `mods/new-menu/main.js` (fila "Terminal" del menú "+") y `mods/menu/main.js` ("New tab" del clic
+  derecho), añadiendo el mismo `argv` a su `run("tab.new", ...)`.
+
+Funcionó, pero se deshizo y **no se recomienda**:
+
+- Esos mods son de Herdr y **se sobrescriben al actualizar** (la prueba coincidió con una actualización a 0.1.13).
+- Al editar `keys.json`, Herdr deja de añadirle atajos nuevos en futuras versiones.
+- Editarlos con `sed -i` desde Git Bash **cambia CRLF por LF** en todo el archivo. Para deshacer, hubo que
+  restaurar las copias originales byte a byte.
+
+Se dejó PowerShell por defecto y Git Bash solo en el menú "+" (Paso 5). El instalador no toca `keys.json` ni los mods.
 
 ## Problemas conocidos
 
@@ -338,8 +308,15 @@ Starship ya funciona ahí si el perfil de terminal de VS Code es Git Bash (`--lo
 | `herdr-app do ...` falla con `args are not JSON` en PowerShell 5.1 | PowerShell se come las comillas dobles del JSON | Ejecutarlo desde Bash (o `!` en Claude Code) |
 | En pestañas Git Bash, Claude no se reanuda solo tras reiniciar Herdr | Esas pestañas no ejecutan el perfil de PowerShell | Abrir esas pestañas como PowerShell |
 | `=>` no se dibuja como flecha (ligaduras) | El terminal de Herdr no dibuja ligaduras con ninguna fuente | Sin solución; no existe opción en Herdr |
+| La terminal de VS Code no muestra Starship | El perfil por defecto es `Command Prompt` o PowerShell | Paso 7d (`defaultProfile.windows` = `"Git Bash"`) y abrir una terminal nueva |
+| VS Code ignora todo `settings.json` tras editarlo | Ruta con `\` sin duplicar dentro del JSON | Usar barras `/` en `path` |
+| Bash da errores raros con `\r` al arrancar | `.bashrc` guardado con CRLF | Guardarlo con LF (las plantillas ya lo están; `.gitattributes` lo mantiene) |
 
 ## Cómo deshacerlo
+
+Si usaste `python instalar.py`, cada archivo que existía antes y se cambió está copiado en
+`~/.claude-tools-backup/<fecha-hora>/`, con su ruta relativa al perfil (por ejemplo
+`AppData/Roaming/Code/User/settings.json`): basta con copiarlo de vuelta. Los archivos que no existían no tienen copia.
 
 - Borra `~/.bashrc` y `~/.bash_profile` del perfil local (si no existían antes), el `starship.toml` y, si hiciste el
   Paso 4, `U:\.bashrc` y `U:\.bash_profile` (si no existían antes).
@@ -347,5 +324,6 @@ Starship ya funciona ahí si el perfil de terminal de VS Code es Git Bash (`--lo
 - Si hiciste el Paso 7: borra `~/.minttyrc` (si no existía antes), el acceso directo `Git Bash (C).lnk` del menú Inicio,
   y las dos fuentes de `%LOCALAPPDATA%\Microsoft\Windows\Fonts` junto con sus valores `FiraCode Nerd Font Mono *`
   en `HKCU:\Software\Microsoft\Windows NT\CurrentVersion\Fonts`.
-- Quita la entrada de `programs.json` y, si lo cambiaste, vuelve `"ctrl-shift-t": "tab.new"` en `keys.json`.
+- Quita la entrada `git-bash` de `programs.json`.
+- VS Code: quita las tres claves del Paso 7d (o vuelve `defaultProfile.windows` a `"Command Prompt"`).
 - `winget uninstall Starship.Starship`.

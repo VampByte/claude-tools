@@ -21,6 +21,10 @@ Skills en formato `SKILL.md` (estándar "Agent Skills"). El mismo archivo funcio
 >
 > No hay equivalente en este repo para opencode.
 
+> **Atajo:** desde la raíz del repo, `python instalar.py` y las opciones **1** (Claude Code) y **2** (opencode)
+> copian las skills por ti, muestran cuáles ya están y actualizan las que cambiaron (guardando antes una copia
+> en `~/.claude-tools-backup/`). Lo de abajo es para hacerlo a mano.
+
 ## Obtener las skills
 
 ```bash
@@ -73,23 +77,27 @@ La carpeta de destino depende de tu versión de opencode.
 
 ### Opción A — Soporte nativo (opencode ≥ 1.0.190, recomendado)
 
-Usa la carpeta `skill/` (singular):
+Usa la carpeta `skills/` (**plural**):
 
-- **Global**: `~/.config/opencode/skill/` → en Windows `%USERPROFILE%\.config\opencode\skill\`
-- **Un solo proyecto**: `skill/` en la raíz del proyecto
+- **Global**: `~/.config/opencode/skills/` → en Windows `%USERPROFILE%\.config\opencode\skills\`
+- **Un solo proyecto**: `skill/` en la raíz del proyecto (sin comprobar con la versión actual)
+
+> Las versiones actuales de opencode usan `skills/`. En la laptop de casa ya existía `~/.config/opencode/skills/`
+> (con las skills `gsd-*` e `impeccable`) y no había `skill/`. Algunas versiones antiguas usaban `skill/` (singular):
+> si `skills/` no existe y sí existe `skill/`, cópialas ahí.
 
 PowerShell:
 
 ```powershell
-New-Item -ItemType Directory -Force "$env:USERPROFILE\.config\opencode\skill" | Out-Null
-Copy-Item -Recurse -Force .\entrevistador-procesos, .\humanizador, .\optimizador-prompts, .\presentaciones-visuales, .\verificador-datos "$env:USERPROFILE\.config\opencode\skill\"
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.config\opencode\skills" | Out-Null
+Copy-Item -Recurse -Force .\entrevistador-procesos, .\humanizador, .\optimizador-prompts, .\presentaciones-visuales, .\verificador-datos "$env:USERPROFILE\.config\opencode\skills\"
 ```
 
 Bash:
 
 ```bash
-mkdir -p ~/.config/opencode/skill
-cp -r entrevistador-procesos humanizador optimizador-prompts presentaciones-visuales verificador-datos ~/.config/opencode/skill/
+mkdir -p ~/.config/opencode/skills
+cp -r entrevistador-procesos humanizador optimizador-prompts presentaciones-visuales verificador-datos ~/.config/opencode/skills/
 ```
 
 Permisos (opcional) en `opencode.json`, para permitir solo algunas:
