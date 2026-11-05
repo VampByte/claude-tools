@@ -1,0 +1,12 @@
+{
+  "programs": {
+    "git-bash": {
+      "name": "Git Bash",
+      "icon": "icons/git.svg",
+      "tint": true,
+      "tile": "#f05032",
+      "color": "#ffffff",
+      "run": ["C:/PROGRA~1/Git/bin/bash.exe", "--login", "-i"]
+    }
+  }
+}

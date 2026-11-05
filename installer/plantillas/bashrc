@@ -1,0 +1,11 @@
+# Solo shells interactivos: no ensuciar la salida de herramientas (p. ej. la herramienta Bash de Claude Code)
+case $- in *i*) ;; *) return ;; esac
+
+# Rutas derivadas de variables de Windows (sin usuario escrito a fuego): sirve en cualquier laptop.
+# Respaldo: si el PATH heredado aun no incluye Starship (instalado con winget), anade su carpeta
+command -v starship >/dev/null 2>&1 || PATH="$PATH:$(cygpath -u "$LOCALAPPDATA")/Microsoft/WinGet/Packages/Starship.Starship_Microsoft.Winget.Source_8wekyb3d8bbwe"
+
+# Starship es un .exe nativo; si HOME apunta a otra unidad (p. ej. U:\) no encontraria su config en C:
+export STARSHIP_CONFIG="$(cygpath -m "$USERPROFILE")/.config/starship.toml"
+
+command -v starship >/dev/null 2>&1 && eval "$(starship init bash)"
