@@ -25,6 +25,27 @@ Skills en formato `SKILL.md` (estándar "Agent Skills"). El mismo archivo funcio
 > copian las skills por ti, muestran cuáles ya están y actualizan las que cambiaron (guardando antes una copia
 > en `~/.claude-tools-backup/`). Lo de abajo es para hacerlo a mano.
 
+## Skills de terceros (instaladas, no incluidas en el repo)
+
+Skills que uso pero que no se copian aquí: tienen varios archivos propios y las mantiene su autor. Se instalan desde su origen.
+
+| Skill | Qué hace | Origen | Licencia |
+| --- | --- | --- | --- |
+| `hallmark` (v2.0.0) | Diseño de sitios y páginas nuevas para que se vean diseñados y no generados: dirección visual, tokens de color y tipografía, y un linter (`sloplint`) que revisa el resultado. | [Nutlope/hallmark](https://github.com/Nutlope/hallmark) | MIT |
+| `impeccable` (v4.7.0) | Diseño y mejora de interfaces: diseñar, rediseñar, criticar, auditar, pulir, simplificar o animar sitios, dashboards, componentes y pantallas móviles; también documenta sistemas de diseño (`DESIGN.md`). | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | Sin verificar (no trae `LICENSE` en la copia instalada) |
+
+**impeccable**
+- Se activa sola ante pedidos de diseño o mejora de interfaces (UX, jerarquía, tipografía, color, movimiento, accesibilidad, responsive), o con `/impeccable`.
+- Está en `~/.claude/skills/impeccable`, que es un enlace a `~/.agents/skills/impeccable` y, de ahí, a la carpeta de Skillshare (`%APPDATA%\skillshare\skills\impeccable`). Contiene `SKILL.md`, `reference/`, `agents/` y `scripts/`. Registrada en `~/.agents/.skill-lock.json` con origen `pbakaus/impeccable`, instalada el 2026-10-20.
+- Al iniciar ejecuta `scripts/impeccable context`, un binario propio que se descarga solo en el primer uso (sin Node) y lee `PRODUCT.md` y `DESIGN.md` del proyecto.
+- Para actualizarla, hazlo desde su origen o con Skillshare; no edites los archivos a mano.
+
+**hallmark**
+- Se invoca con `/hallmark <prompt>`, `/hallmark redesign <ruta>` o `/hallmark audit <ruta>`. Sin nombrarla, solo actúa en páginas nuevas, nunca sobre un diseño existente.
+- Quedó en `~/.claude/skills/hallmark/` (`SKILL.md`, `references/`, `scripts/`, `agents/`), registrada en `~/.agents/.skill-lock.json` con el commit `04977e1`. Eso indica que se instaló con el instalador de skills (`npx skills add Nutlope/hallmark`); el comando exacto no está verificado.
+- Para actualizarla, vuelve a instalarla desde el origen; no edites los archivos a mano.
+- Opcional: con `TOGETHER_API_KEY` definida, usa el paso de maquetas con Together AI. Con Node disponible, corre `scripts/sloplint.mjs` al terminar. Declara soporte para opencode (`opencode/slash`).
+
 ## Obtener las skills
 
 ```bash

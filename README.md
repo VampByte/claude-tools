@@ -10,7 +10,7 @@ Colección de utilidades (mods) para Claude Code: herramientas para Claude. Cada
 
 ## Skills
 
-Además de los mods, el repo incluye 6 skills (`SKILL.md`) para Claude Code (todas menos `jsk-opencode` también sirven en opencode): `entrevistador-procesos`, `humanizador`, `jsk-opencode`, `optimizador-prompts`, `presentaciones-visuales` y `verificador-datos`. Lista y manual de instalación en [`skills/README.md`](skills/README.md).
+Además de los mods, el repo incluye 6 skills (`SKILL.md`) para Claude Code (todas menos `jsk-opencode` también sirven en opencode): `entrevistador-procesos`, `humanizador`, `jsk-opencode`, `optimizador-prompts`, `presentaciones-visuales` y `verificador-datos`. Lista y manual de instalación en [`skills/README.md`](skills/README.md), que también documenta las skills de terceros instaladas (por ahora `hallmark` e `impeccable`).
 
 ## Guías
 
