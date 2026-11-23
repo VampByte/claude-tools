@@ -29,4 +29,5 @@ def componentes():
     from .clean_view import CleanView
     from .skills import SkillsClaude, SkillsOpencode
     from .starship import Starship
-    return [SkillsClaude(), SkillsOpencode(), CleanView(), Starship()]
+    from .terceros import terceros
+    return [SkillsClaude(), SkillsOpencode(), CleanView(), Starship(), *terceros()]

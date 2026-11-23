@@ -28,9 +28,11 @@ class ElegirTest(unittest.TestCase):
 
 class LineaTest(unittest.TestCase):
     def test_marca_y_requisitos(self):
-        self.assertIn("[x]", linea(1, "Skills", Estado(6, 6), []))
-        l = linea(4, "Starship", Estado(2, 7), ["Herdr"])
-        self.assertIn("[ ]", l)
+        self.assertIn("✅", linea(1, "Skills", Estado(6, 6), []))
+        self.assertIn("⬜", linea(1, "Skills", Estado(0, 6), []))
+        l = linea(4, "Starship", Estado(2, 7), ["Herdr"], "🚀")
+        self.assertIn("🟡", l)
+        self.assertIn("🚀", l)
         self.assertIn("2 de 7", l)
         self.assertIn("falta: Herdr", l)
 

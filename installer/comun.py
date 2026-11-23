@@ -90,6 +90,17 @@ def backup(rutas: Rutas, ruta: Path) -> Path | None:
     return destino
 
 
+def quitar(ruta: Path) -> None:
+    """Borra un archivo, una carpeta o un enlace. Un enlace se quita sin tocar lo que apunta."""
+    if ruta.is_symlink() or ruta.is_file():
+        try:
+            ruta.unlink()
+        except OSError:
+            os.rmdir(ruta)  # enlace a carpeta en Windows
+    elif ruta.is_dir():
+        shutil.rmtree(ruta)
+
+
 def leer_texto(ruta: Path) -> str:
     """Lee UTF-8 (con o sin BOM) y devuelve el texto con saltos de línea LF."""
     datos = ruta.read_bytes()
@@ -168,13 +179,8 @@ def _formatear(valor, indent: str) -> str:
     return json.dumps(valor, indent=4, ensure_ascii=False).replace("\n", "\n" + indent)
 
 
-def jsonc_set(t: str, clave: str, valor) -> str:
-    """Pone `clave` de primer nivel a `valor` en un JSONC, conservando comentarios y formato del resto."""
-    if jsonc_cargar(t).get(clave, object()) == valor:
-        return t
-    tokens = _escanear(t)
-    if not tokens or t[tokens[0][1]] != "{":
-        raise ValueError("el JSON no es un objeto")
+def _clave_en(t: str, tokens, clave: str):
+    """(k, m): índice del token de la clave de primer nivel y del que sigue a su valor; None si no está."""
     prof = 0
     for k, (tipo, a, b) in enumerate(tokens):
         if tipo == "chr" and t[a] in "{[":
@@ -183,7 +189,6 @@ def jsonc_set(t: str, clave: str, valor) -> str:
             prof -= 1
         elif (tipo == "str" and prof == 1 and k + 1 < len(tokens)
               and t[tokens[k + 1][1]] == ":" and json.loads(t[a:b]) == clave):
-            inicio = tokens[k + 2][1]
             d, m = 0, k + 2
             while m < len(tokens):
                 ch = t[tokens[m][1]] if tokens[m][0] == "chr" else ""
@@ -199,11 +204,49 @@ def jsonc_set(t: str, clave: str, valor) -> str:
                 elif ch == "," and d == 0:
                     break
                 m += 1
-            fin = tokens[m - 1][2]
-            linea = t.rfind("\n", 0, a) + 1
-            indent = t[linea:a] if t[linea:a].strip() == "" else ""
-            nuevo = t[:inicio] + _formatear(valor, indent) + t[fin:]
-            break
+            return k, m
+    return None
+
+
+def jsonc_quitar(t: str, clave: str) -> str:
+    """Quita `clave` de primer nivel de un JSONC, conservando comentarios y formato del resto."""
+    tokens = _escanear(t)
+    hallada = _clave_en(t, tokens, clave) if tokens else None
+    if not hallada:
+        return t
+    k, m = hallada
+    ini, fin = tokens[k][1], tokens[m - 1][2]
+    if m < len(tokens) and t[tokens[m][1]] == ",":
+        fin = tokens[m][2]  # con su coma
+    elif k > 0 and t[tokens[k - 1][1]] == ",":
+        ini = tokens[k - 1][1]  # era la última: se lleva la coma anterior
+    a, z = t.rfind("\n", 0, ini) + 1, t.find("\n", fin)
+    z = len(t) if z < 0 else z
+    if t[a:ini].strip() == "" and t[fin:z].strip() == "":
+        ini, fin = a, min(z + 1, len(t))  # la clave ocupaba toda su línea
+    nuevo = t[:ini] + t[fin:]
+    resto = jsonc_cargar(t)
+    resto.pop(clave, None)
+    if jsonc_cargar(nuevo) != resto:
+        raise ValueError(f"no se pudo quitar {clave} del JSON")
+    return nuevo
+
+
+def jsonc_set(t: str, clave: str, valor) -> str:
+    """Pone `clave` de primer nivel a `valor` en un JSONC, conservando comentarios y formato del resto."""
+    if jsonc_cargar(t).get(clave, object()) == valor:
+        return t
+    tokens = _escanear(t)
+    if not tokens or t[tokens[0][1]] != "{":
+        raise ValueError("el JSON no es un objeto")
+    hallada = _clave_en(t, tokens, clave)
+    if hallada:
+        k, m = hallada
+        a = tokens[k][1]
+        inicio, fin = tokens[k + 2][1], tokens[m - 1][2]
+        linea = t.rfind("\n", 0, a) + 1
+        indent = t[linea:a] if t[linea:a].strip() == "" else ""
+        nuevo = t[:inicio] + _formatear(valor, indent) + t[fin:]
     else:
         apertura = tokens[0][2]
         indent = "    "
@@ -230,6 +273,10 @@ class Sistema:
     def run(self, cmd: list[str]) -> subprocess.CompletedProcess:
         return subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
 
+    def run_interactivo(self, cmd: list[str]) -> int:
+        """Ejecuta un programa con la consola de la persona (sin capturar la salida)."""
+        return subprocess.run(cmd).returncode
+
     def descargar(self, url: str, destino: Path) -> None:
         import urllib.request
         urllib.request.urlretrieve(url, destino)
@@ -254,6 +301,14 @@ class Sistema:
         except (ImportError, OSError):
             return None
 
+    def reg_fuente_borrar(self, nombre: str) -> None:
+        try:
+            import winreg
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, self._CLAVE_FUENTES, 0, winreg.KEY_SET_VALUE) as k:
+                winreg.DeleteValue(k, nombre)
+        except (ImportError, OSError):
+            pass
+
     def reg_fuente_poner(self, nombre: str, valor: str) -> None:
         import winreg
         with winreg.CreateKey(winreg.HKEY_CURRENT_USER, self._CLAVE_FUENTES) as k:
@@ -264,7 +319,27 @@ class Interfaz:
     """Cómo habla un componente con la persona. Los tests usan una versión falsa."""
 
     def avisar(self, msg: str) -> None:
-        print(f"  ! {msg}")
+        print(f"  ⚠  {msg}")
+
+    def seleccionar(self, titulo: str, opciones: list[str]) -> list[int] | None:
+        """Lista numerada; Enter o "todo" elige todas. Devuelve índices (desde 0) o None si cancela."""
+        from .menu import Salir, elegir  # import aquí: menu importa este módulo
+        print(f"\n  {titulo}")
+        for i, o in enumerate(opciones, 1):
+            print(f"    {i}. {o}")
+        while True:
+            try:
+                t = input('  Números separados por espacio, Enter o "todo" para todas, "q" para cancelar:\n  > ')
+            except EOFError:
+                return None
+            if not t.strip():
+                return list(range(len(opciones)))
+            try:
+                return elegir(t, len(opciones))
+            except Salir:
+                return None
+            except ValueError as e:
+                print(f"  {e}")
 
     def confirmar(self, msg: str) -> bool:
         return input(f"  {msg} [s/n] ").strip().lower() in ("s", "si", "sí", "y", "yes")

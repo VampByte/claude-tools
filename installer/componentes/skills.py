@@ -5,7 +5,7 @@ import filecmp
 import shutil
 from pathlib import Path
 
-from ..comun import REPO, Rutas, backup
+from ..comun import REPO, Rutas, backup, quitar
 from . import Estado
 
 SKILLS_REPO = REPO / "skills"
@@ -39,9 +39,19 @@ class _CopiaSkills:
         hechas = sum(carpetas_iguales(SKILLS_REPO / s, self.destino(rutas) / s) for s in self.skills)
         return Estado(hechas, len(self.skills))
 
+    def _situacion(self, rutas: Rutas, skill: str) -> str:
+        dst = self.destino(rutas) / skill
+        if carpetas_iguales(SKILLS_REPO / skill, dst):
+            return "ya instalada y al día"
+        return "difiere del repo: se actualizaría" if dst.exists() else "no instalada"
+
     def instalar(self, rutas: Rutas, sis, ui) -> list[str]:
         registro = []
-        for s in self.skills:
+        opciones = [f"{s}  ({self._situacion(rutas, s)})" for s in self.skills]
+        elegidas = ui.seleccionar(f"¿Qué skills instalar en {self.destino(rutas)}?", opciones)
+        if elegidas is None:
+            return ["cancelado"]
+        for s in (self.skills[i] for i in elegidas):
             origen, dst = SKILLS_REPO / s, self.destino(rutas) / s
             if carpetas_iguales(origen, dst):
                 registro.append(f"{s}: ya estaba")
@@ -56,8 +66,26 @@ class _CopiaSkills:
         return registro
 
 
+    def desinstalar(self, rutas: Rutas, sis, ui) -> list[str]:
+        presentes = [s for s in self.skills if (self.destino(rutas) / s).exists()]
+        if not presentes:
+            return [f"no hay skills del repo en {self.destino(rutas)}"]
+        opciones = [f"{s}  ({self._situacion(rutas, s)})" for s in presentes]
+        elegidas = ui.seleccionar(f"¿Qué skills quitar de {self.destino(rutas)}?", opciones)
+        if elegidas is None:
+            return ["cancelado"]
+        registro = []
+        for s in (presentes[i] for i in elegidas):
+            dst = self.destino(rutas) / s
+            backup(rutas, dst)
+            quitar(dst)
+            registro.append(f"{s}: desinstalada (copia en el backup)")
+        return registro
+
+
 class SkillsClaude(_CopiaSkills):
     nombre = "Skills de Claude Code"
+    icono = "🧠"
     skills = TODAS
 
     def destino(self, rutas):
@@ -69,6 +97,7 @@ class SkillsClaude(_CopiaSkills):
 
 class SkillsOpencode(_CopiaSkills):
     nombre = "Skills de opencode"
+    icono = "🤖"
     skills = [s for s in TODAS if s != "jsk-opencode"]
 
     def destino(self, rutas):

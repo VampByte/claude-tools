@@ -26,11 +26,18 @@ python instalar.py
 
 Muestra un menú con el estado de cada opción y te deja elegir con números (`1 3`, `todo` o `q`):
 
-1. Skills de Claude Code (las 6, en `~/.claude/skills/`)
-2. Skills de opencode (5, en `~/.config/opencode/skills/`)
+1. Skills de Claude Code (6, en `~/.claude/skills/`): después de elegirla, te deja escoger cuáles
+2. Skills de opencode (5, en `~/.config/opencode/skills/`): igual, con selección de cuáles
 3. Mod `clean-view`
 4. Starship y terminales: Herdr, mintty, el acceso directo "Git Bash (C)" y VS Code. Es lo de la
    [guía](docs/herdr-git-bash-starship.md), que pide Git, Herdr y VS Code (si falta alguno, avisa)
+5. y 6. Skills de terceros `hallmark` e `impeccable` (ver [`skills/README.md`](skills/README.md)): abre Claude Code con un
+   prompt que las instala siguiendo el README de su repositorio. Hay que salir con `/exit` para que el menú continúe
+
+**Desinstalar:** escribe `d` en el menú, elige las opciones y confirma. Las skills y las partes de Starship te dejan
+escoger cuáles quitar. Solo se borra lo que puso el instalador: un `.bashrc` o `.bash_profile` con cambios tuyos se
+conserva, y las claves de VS Code, Herdr y mintty se quitan una a una sin tocar el resto. Starship y la fuente se
+desinstalan con `winget` y borrando los `.ttf`. De lo borrado queda copia en `~/.claude-tools-backup/`.
 
 Se puede repetir sin problemas: lo que ya está no se toca. Antes de cambiar un archivo existente, guarda una copia en
 `~/.claude-tools-backup/<fecha-hora>/`. Requiere Python 3.10 o superior (`winget install Python.Python.3.13` si no

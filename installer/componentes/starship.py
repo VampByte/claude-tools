@@ -7,7 +7,7 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-from ..comun import Rutas, escribir, jsonc_cargar, jsonc_set, leer_texto, plantilla
+from ..comun import Rutas, backup, escribir, jsonc_cargar, jsonc_quitar, jsonc_set, leer_texto, plantilla, quitar
 from . import Estado
 
 FUENTE = "FiraCode Nerd Font Mono"
@@ -18,7 +18,9 @@ FUENTES = {
 }
 WINGET_STARSHIP = ["winget", "install", "--id", "Starship.Starship", "--exact", "--scope", "user",
                    "--accept-package-agreements", "--accept-source-agreements", "--disable-interactivity"]
-ARCHIVOS_SHELL = {".bashrc": "bashrc", ".bash_profile": "bash_profile", ".config/starship.toml": "starship.toml"}
+WINGET_QUITAR = ["winget", "uninstall", "--id", "Starship.Starship", "--exact", "--silent",
+                 "--disable-interactivity"]
+ARCHIVOS_SHELL ={".bashrc": "bashrc", ".bash_profile": "bash_profile", ".config/starship.toml": "starship.toml"}
 LNK = "Git Bash (C).lnk"
 VS_PERFIL = "terminal.integrated.profiles.windows"
 VS_DEFECTO = "terminal.integrated.defaultProfile.windows"
@@ -197,6 +199,150 @@ class _Ctx:
             texto = jsonc_set(texto, k, v)
         escribir(self.rutas, r, texto)
 
+    # --- Desinstalar: cada `quitar_*` deshace solo lo que puso el instalador y devuelve una nota
+    def _paquete_winget(self):
+        return any((self.rutas.localappdata / "Microsoft" / "WinGet" / "Packages").glob("Starship.Starship_*"))
+
+    def starship_quitar(self):
+        if not self._paquete_winget():
+            return "no se instaló con winget: no se toca"
+        if not self.sis.which("winget"):
+            raise RuntimeError("no se encontró winget")
+        r = self.sis.run(WINGET_QUITAR)
+        if r.returncode != 0 and self._paquete_winget():
+            raise RuntimeError(f"winget falló: {(r.stdout or r.stderr).strip()[-300:]}")
+        return "desinstalado"
+
+    def _carpetas_fuente(self):
+        return [self.rutas.fuentes_usuario, self.rutas.herdr / "fonts"]
+
+    def fuente_presente(self):
+        return (any((d / f).exists() for d in self._carpetas_fuente() for f in FUENTES)
+                or any(self.sis.reg_fuente(n) for n in FUENTES.values()))
+
+    def fuente_quitar(self):
+        en_uso = []
+        for d in self._carpetas_fuente():
+            for f in FUENTES:
+                try:
+                    (d / f).unlink(missing_ok=True)
+                except PermissionError:
+                    en_uso.append(f)
+        for n in FUENTES.values():
+            self.sis.reg_fuente_borrar(n)
+        if en_uso:
+            raise RuntimeError("archivos en uso (cierra Herdr y VS Code, o reinicia Windows, y repite)")
+        return "quitada"
+
+    def shell_presente(self):
+        return any((self.rutas.home / d).exists() for d in ARCHIVOS_SHELL)
+
+    def shell_quitar(self):
+        notas = []
+        for d, p in ARCHIVOS_SHELL.items():
+            ruta = self.rutas.home / d
+            if not ruta.exists():
+                continue
+            if leer_texto(ruta) == plantilla(p):
+                backup(self.rutas, ruta)
+                quitar(ruta)
+            else:
+                notas.append(f"{d} tiene cambios tuyos: se deja")
+        return "; ".join(notas) or "borrados"
+
+    def _fuente_herdr_anterior(self):
+        """Fuente de Herdr que había antes del instalador, si quedó en alguna copia de seguridad."""
+        raiz = self.rutas.home / ".claude-tools-backup"
+        for copia in sorted(raiz.glob("*/.config/herdr-app/settings.json")):
+            try:
+                f = json.loads(leer_texto(copia)).get("font")
+            except ValueError:
+                continue
+            if f and f != FUENTE:
+                return f
+        return None
+
+    def herdr_presente(self):
+        p = _cargar_json(self.rutas.herdr / "programs.json")
+        return (_cargar_json(self.rutas.herdr / "settings.json").get("font") == FUENTE
+                or "git-bash" in p.get("programs", {}))
+
+    def herdr_quitar(self):
+        ruta = self.rutas.herdr / "settings.json"
+        s = _cargar_json(ruta)
+        nota = ""
+        if s.get("font") == FUENTE:
+            anterior = self._fuente_herdr_anterior()
+            if anterior:
+                s["font"] = anterior
+                nota = f"; fuente restaurada a {anterior}"
+            else:
+                del s["font"]
+                nota = "; fuente de Herdr a la predeterminada"
+            escribir(self.rutas, ruta, json.dumps(s, indent=2, ensure_ascii=False) + "\n")
+        ruta = self.rutas.herdr / "programs.json"
+        p = _cargar_json(ruta)
+        if p.get("programs", {}).pop("git-bash", None) is not None:
+            escribir(self.rutas, ruta, json.dumps(p, indent=2, ensure_ascii=False) + "\n")
+        return "quitado" + nota
+
+    def mintty_presente(self):
+        r = self._minttyrc()
+        if not r.exists():
+            return False
+        actual = _ini(leer_texto(r))
+        return any(actual.get(k) == v for k, v in _ini(plantilla("minttyrc")).items())
+
+    def mintty_quitar(self):
+        r = self._minttyrc()
+        propias = _ini(plantilla("minttyrc"))
+        quedan = [l for l in leer_texto(r).splitlines()
+                  if propias.get(l.partition("=")[0].strip()) != l.partition("=")[2].strip()]
+        if any(l.strip() for l in quedan):
+            escribir(self.rutas, r, "\n".join(quedan) + "\n")
+            return "claves del instalador quitadas; el resto se conserva"
+        backup(self.rutas, r)
+        quitar(r)
+        return ".minttyrc borrado"
+
+    def lnk_quitar(self):
+        quitar(self.rutas.menu_inicio / LNK)
+        return "quitado"
+
+    def vscode_presente(self):
+        r = self.rutas.vscode_settings
+        if not r.exists():
+            return False
+        a = jsonc_cargar(leer_texto(r))
+        return (a.get(VS_DEFECTO) == "Git Bash" or a.get(VS_FUENTE) == FUENTE
+                or "Git Bash" in (a.get(VS_PERFIL) or {}))
+
+    def vscode_quitar(self):
+        r = self.rutas.vscode_settings
+        texto = leer_texto(r)
+        a = jsonc_cargar(texto)
+        if a.get(VS_DEFECTO) == "Git Bash":
+            texto = jsonc_quitar(texto, VS_DEFECTO)
+        if a.get(VS_FUENTE) == FUENTE:
+            texto = jsonc_quitar(texto, VS_FUENTE)
+        perfiles = dict(a.get(VS_PERFIL) or {})
+        if perfiles.pop("Git Bash", None) is not None:
+            texto = jsonc_set(texto, VS_PERFIL, perfiles) if perfiles else jsonc_quitar(texto, VS_PERFIL)
+        escribir(self.rutas, r, texto)
+        return "claves quitadas"
+
+    def pasos_quitar(self):
+        """(nombre, presente, quitar), en el orden inverso al de instalación."""
+        return [
+            ("VS Code: Git Bash por defecto y fuente", self.vscode_presente, self.vscode_quitar),
+            ('Acceso directo "Git Bash (C)"', lambda: (self.rutas.menu_inicio / LNK).exists(), self.lnk_quitar),
+            ("mintty (.minttyrc)", self.mintty_presente, self.mintty_quitar),
+            ("Herdr: fuente y Git Bash en el menú +", self.herdr_presente, self.herdr_quitar),
+            (".bashrc, .bash_profile y starship.toml", self.shell_presente, self.shell_quitar),
+            ("Nerd Font", self.fuente_presente, self.fuente_quitar),
+            ("Starship (winget)", self._paquete_winget, self.starship_quitar),
+        ]
+
     def pasos(self):
         """(nombre, aplica, hecho, hacer). `aplica` es False si falta el programa que lo necesita."""
         return [
@@ -213,6 +359,7 @@ class _Ctx:
 
 class Starship:
     nombre = "Starship y terminales"
+    icono = "🚀"
     PROGRAMAS = {"git": "Git", "herdr-app": "Herdr", "code": "VS Code"}
 
     def requisitos(self, sis) -> list[str]:
@@ -224,6 +371,23 @@ class Starship:
         omitidos = len(ctx.pasos()) - len(aplican)
         return Estado(sum(bool(p[2]()) for p in aplican), len(aplican),
                       f"{omitidos} paso(s) no aplican" if omitidos else "")
+
+    def desinstalar(self, rutas: Rutas, sis, ui) -> list[str]:
+        ctx = _Ctx(rutas, sis)
+        presentes = [(n, q) for n, hay, q in ctx.pasos_quitar() if hay()]
+        if not presentes:
+            return ["no hay nada de Starship y terminales instalado"]
+        elegidos = ui.seleccionar("¿Qué partes quitar?", [n for n, _ in presentes])
+        if elegidos is None:
+            return ["cancelado"]
+        registro = []
+        for i in elegidos:
+            nombre, quitar_paso = presentes[i]
+            try:
+                registro.append(f"{nombre}: {quitar_paso()}")
+            except Exception as e:  # un paso que falla no impide los demás
+                registro.append(f"{nombre}: ERROR, {e}")
+        return registro
 
     def instalar(self, rutas: Rutas, sis, ui) -> list[str]:
         faltan = self.requisitos(sis)

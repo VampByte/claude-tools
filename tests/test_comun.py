@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from installer.comun import Rutas, escribir, jsonc_cargar, jsonc_set, leer_texto
+from installer.comun import Rutas, escribir, jsonc_cargar, jsonc_quitar, jsonc_set, leer_texto
 
 
 class JsoncTest(unittest.TestCase):
@@ -45,6 +45,25 @@ class JsoncTest(unittest.TestCase):
     def test_set_no_toca_claves_anidadas_con_el_mismo_nombre(self):
         t = jsonc_set('{"b": {"a": 1}, "a": 2}', "a", 3)
         self.assertEqual(jsonc_cargar(t), {"b": {"a": 1}, "a": 3})
+
+    def test_quitar_clave_intermedia_conserva_comentarios_y_formato(self):
+        t = jsonc_quitar(self.BASE, "a")
+        self.assertEqual(jsonc_cargar(t), {"url": "http://x//y", "b": {"c": [1, 2]}})
+        self.assertIn("// comentario", t)
+        self.assertNotIn('"a"', t)
+
+    def test_quitar_la_ultima_se_lleva_la_coma_anterior(self):
+        t = jsonc_quitar('{\n    "a": 1,\n    "z": [1, 2]\n}', "z")
+        self.assertEqual(jsonc_cargar(t), {"a": 1})
+        self.assertEqual(t, '{\n    "a": 1\n}')
+
+    def test_quitar_unica_clave_y_en_una_sola_linea(self):
+        self.assertEqual(jsonc_cargar(jsonc_quitar('{\n    "a": {"x": 1}\n}', "a")), {})
+        self.assertEqual(jsonc_cargar(jsonc_quitar('{"a": 1, "b": 2}', "a")), {"b": 2})
+
+    def test_quitar_clave_inexistente_o_anidada_no_cambia_nada(self):
+        t = '{"b": {"a": 1}}'
+        self.assertEqual(jsonc_quitar(t, "a"), t)
 
 
 class EscribirTest(unittest.TestCase):

@@ -20,6 +20,7 @@ def _json(ruta):
 
 class CleanView:
     nombre = "Mod clean-view"
+    icono = "🧹"
 
     def requisitos(self, sis) -> list[str]:
         return [] if sis.which("claude") else ["claude"]
@@ -38,6 +39,20 @@ class CleanView:
         r = sis.run([sis.which("claude"), *args])
         if r.returncode != 0:
             raise RuntimeError(f"claude {' '.join(args)} falló: {(r.stderr or r.stdout).strip()[-300:]}")
+
+    def desinstalar(self, rutas: Rutas, sis, ui) -> list[str]:
+        if not (self._plugin(rutas) or self._marketplace(rutas)):
+            return ["clean-view: no estaba instalado"]
+        if not sis.which("claude"):
+            raise RuntimeError("no se encontró el comando claude")
+        registro = []
+        if self._plugin(rutas):
+            self._claude(sis, "plugin", "uninstall", PLUGIN, "--scope", "user")
+            registro.append("clean-view: desinstalado")
+        if self._marketplace(rutas):
+            self._claude(sis, "plugin", "marketplace", "remove", MARKETPLACE)
+            registro.append("marketplace claude-tools: quitado")
+        return registro
 
     def instalar(self, rutas: Rutas, sis, ui) -> list[str]:
         if not sis.which("claude"):
