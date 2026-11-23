@@ -116,6 +116,11 @@ class SkillsTest(Base):
         self.assertTrue(all("ya estaba" in r for r in registro))
         self.assertTrue(self.sin_backups())
 
+    def test_presentacion_proyecto_copia_solo_skill_md(self):
+        SkillsClaude().instalar(self.rutas, self.sis, self.ui)
+        d = self.rutas.claude_skills / "presentacion-proyecto"
+        self.assertEqual([f.name for f in d.iterdir()], ["SKILL.md"])
+
     def test_skill_modificada_se_actualiza_con_backup(self):
         c = SkillsOpencode()
         c.instalar(self.rutas, self.sis, self.ui)

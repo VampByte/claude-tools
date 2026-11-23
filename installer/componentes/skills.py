@@ -13,10 +13,14 @@ TODAS = ["entrevistador-procesos", "humanizador", "jsk-opencode",
          "optimizador-prompts", "presentacion-proyecto", "presentaciones-visuales", "verificador-datos"]
 
 
+# Archivos del repo que no son parte de la skill (solo documentación o paquete para Claude.ai).
+NO_COPIAR = ["presentacion-proyecto.zip", "INSTALACION.md"]
+
+
 def carpetas_iguales(a: Path, b: Path) -> bool:
     if not b.is_dir():
         return False
-    c = filecmp.dircmp(a, b)
+    c = filecmp.dircmp(a, b, ignore=filecmp.DEFAULT_IGNORES + NO_COPIAR)
     if c.left_only or c.right_only or c.funny_files:
         return False
     _, distintos, errores = filecmp.cmpfiles(a, b, c.common_files, shallow=False)
@@ -62,7 +66,7 @@ class _CopiaSkills:
                 registro.append(f"{s}: actualizada (copia de la anterior en el backup)")
             else:
                 registro.append(f"{s}: instalada")
-            shutil.copytree(origen, dst)
+            shutil.copytree(origen, dst, ignore=shutil.ignore_patterns(*NO_COPIAR))
         return registro
 
 
