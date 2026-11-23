@@ -12,7 +12,7 @@ Skills en formato `SKILL.md` (estándar "Agent Skills"). El mismo archivo funcio
 | [`presentaciones-visuales`](presentaciones-visuales) | Crea presentaciones HTML modernas, listas para el navegador, a partir de una idea o documento. |
 | [`jsk-opencode`](jsk-opencode) | Delega tareas sencillas a MiniMax-M3 vía `opencode run` para ahorrar tokens; Claude revisa siempre el resultado. Solo Claude Code (requiere `opencode` instalado); se invoca con `/jsk-opencode`. |
 | [`verificador-datos`](verificador-datos) | Revisa textos y comprueba si sus afirmaciones son correctas, exageradas o no verificables. |
-| [`presentacion-proyecto`](presentacion-proyecto) | Genera una infografía ejecutiva de una página o un video corto con voz de un proyecto, para presentarlo a Gerencia. Se distribuye como zip y sirve en Claude.ai (recomendado) y Claude Code; el instalador no lo copia. Instrucciones en [`INSTALACION.md`](presentacion-proyecto/INSTALACION.md). |
+| [`presentacion-proyecto`](presentacion-proyecto) | Genera una infografía ejecutiva de una página o un video corto con voz de un proyecto, para presentarlo a Gerencia. Se distribuye como zip y sirve en Claude.ai (recomendado) y Claude Code; el instalador lo copia como carpeta. Instrucciones en [`INSTALACION.md`](presentacion-proyecto/INSTALACION.md). |
 
 > **`superpowers` no está aquí.** Es un plugin del marketplace de Claude Code; instálalo desde ahí en vez de copiar una skill:
 >

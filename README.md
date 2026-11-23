@@ -10,7 +10,7 @@ Colección de utilidades (mods) para Claude Code: herramientas para Claude. Cada
 
 ## Skills
 
-Además de los mods, el repo incluye 6 skills (`SKILL.md`) para Claude Code (todas menos `jsk-opencode` también sirven en opencode): `entrevistador-procesos`, `humanizador`, `jsk-opencode`, `optimizador-prompts`, `presentaciones-visuales` y `verificador-datos`. Lista y manual de instalación en [`skills/README.md`](skills/README.md), que también documenta las skills de terceros instaladas (por ahora `hallmark` e `impeccable`).
+Además de los mods, el repo incluye 7 skills (`SKILL.md`) para Claude Code (todas menos `jsk-opencode` también sirven en opencode): `entrevistador-procesos`, `humanizador`, `jsk-opencode`, `optimizador-prompts`, `presentacion-proyecto`, `presentaciones-visuales` y `verificador-datos`. Lista y manual de instalación en [`skills/README.md`](skills/README.md), que también documenta las skills de terceros instaladas (por ahora `hallmark` e `impeccable`).
 
 ## Guías
 
@@ -26,8 +26,8 @@ python instalar.py
 
 Muestra un menú con el estado de cada opción y te deja elegir con números (`1 3`, `todo` o `q`):
 
-1. Skills de Claude Code (6, en `~/.claude/skills/`): después de elegirla, te deja escoger cuáles
-2. Skills de opencode (5, en `~/.config/opencode/skills/`): igual, con selección de cuáles
+1. Skills de Claude Code (7, en `~/.claude/skills/`): después de elegirla, te deja escoger cuáles
+2. Skills de opencode (6, en `~/.config/opencode/skills/`): igual, con selección de cuáles
 3. Mod `clean-view`
 4. Starship y terminales: Herdr, mintty, el acceso directo "Git Bash (C)" y VS Code. Es lo de la
    [guía](docs/herdr-git-bash-starship.md), que pide Git, Herdr y VS Code (si falta alguno, avisa)

@@ -10,7 +10,7 @@ from . import Estado
 
 SKILLS_REPO = REPO / "skills"
 TODAS = ["entrevistador-procesos", "humanizador", "jsk-opencode",
-         "optimizador-prompts", "presentaciones-visuales", "verificador-datos"]
+         "optimizador-prompts", "presentacion-proyecto", "presentaciones-visuales", "verificador-datos"]
 
 
 def carpetas_iguales(a: Path, b: Path) -> bool:

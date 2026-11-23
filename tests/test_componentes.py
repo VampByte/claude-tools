@@ -120,7 +120,7 @@ class SkillsTest(Base):
         c = SkillsOpencode()
         c.instalar(self.rutas, self.sis, self.ui)
         (self.rutas.opencode_skills / "humanizador" / "SKILL.md").write_text("editada")
-        self.assertEqual(c.estado(self.rutas, self.sis).hecho, 4)
+        self.assertEqual(c.estado(self.rutas, self.sis).hecho, 5)
         c.instalar(self.rutas, self.sis, self.ui)
         self.assertTrue(c.estado(self.rutas, self.sis).completo)
         respaldo = self.rutas.backup_dir / ".config" / "opencode" / "skills" / "humanizador" / "SKILL.md"
@@ -151,8 +151,8 @@ class SkillsTest(Base):
 
     def test_opencode_no_lleva_jsk_opencode(self):
         self.assertNotIn("jsk-opencode", SkillsOpencode().skills)
-        self.assertEqual(len(SkillsOpencode().skills), 5)
-        self.assertEqual(len(SkillsClaude().skills), 6)
+        self.assertEqual(len(SkillsOpencode().skills), 6)
+        self.assertEqual(len(SkillsClaude().skills), 7)
 
 
 class CleanViewTest(Base):
