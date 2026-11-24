@@ -1,0 +1,6 @@
+{
+  "name": "image-preview",
+  "version": "0.1.0",
+  "description": "Muestra una miniatura de la imagen que pegas en el prompt, antes de enviarla (Windows, terminal con graficos kitty).",
+  "types": "./types/index.d.ts"
+}

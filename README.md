@@ -7,6 +7,7 @@ Colección de utilidades (mods) para Claude Code: herramientas para Claude. Cada
 | Mod | Qué hace |
 | --- | --- |
 | [`clean-view`](plugins/clean-view) | Vista simple: panel de pasos en español sobre el cuadro de texto, filas técnicas de herramientas ocultas y comando `/simple`. |
+| [`image-preview`](plugins/image-preview) | Miniatura de la imagen que pegas en el prompt, antes de enviarla (Windows, terminal con gráficos kitty). Guía: [`docs/image-preview.md`](docs/image-preview.md). |
 
 ## Skills
 
@@ -15,6 +16,7 @@ Además de los mods, el repo incluye 7 skills (`SKILL.md`) para Claude Code (tod
 ## Guías
 
 - [`docs/herdr-git-bash-starship.md`](docs/herdr-git-bash-starship.md): Git Bash con prompt Starship en Windows, paso a paso: Herdr app, Git Bash independiente (mintty) y VS Code.
+- [`docs/image-preview.md`](docs/image-preview.md): instalar el mod `image-preview` (miniatura de imágenes pegadas) en otro portátil Windows.
 
 ## Instalador
 

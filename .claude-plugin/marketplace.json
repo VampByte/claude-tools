@@ -9,6 +9,11 @@
       "name": "clean-view",
       "source": "./plugins/clean-view",
       "description": "Vista simple: panel de pasos en español y filas técnicas ocultas."
+    },
+    {
+      "name": "image-preview",
+      "source": "./plugins/image-preview",
+      "description": "Miniatura de la imagen pegada en el prompt, antes de enviarla (Windows, terminal con gráficos kitty)."
     }
   ]
 }
