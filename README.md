@@ -8,6 +8,7 @@ Colección de utilidades (mods) para Claude Code: herramientas para Claude. Cada
 | --- | --- |
 | [`clean-view`](plugins/clean-view) | Vista simple: panel de pasos en español sobre el cuadro de texto, filas técnicas de herramientas ocultas y comando `/simple`. |
 | [`image-preview`](plugins/image-preview) | Miniatura de la imagen que pegas en el prompt, antes de enviarla (Windows, terminal con gráficos kitty). Guía: [`docs/image-preview.md`](docs/image-preview.md). |
+| [`my-messages`](plugins/my-messages) | Resalta tus mensajes en el chat con fondo y barra lateral ámbar. Guía: [`docs/my-messages.md`](docs/my-messages.md). |
 
 ## Skills
 
@@ -17,6 +18,8 @@ Además de los mods, el repo incluye 7 skills (`SKILL.md`) para Claude Code (tod
 
 - [`docs/herdr-git-bash-starship.md`](docs/herdr-git-bash-starship.md): Git Bash con prompt Starship en Windows, paso a paso: Herdr app, Git Bash independiente (mintty) y VS Code.
 - [`docs/image-preview.md`](docs/image-preview.md): instalar el mod `image-preview` (miniatura de imágenes pegadas) en otro portátil Windows.
+- [`docs/my-messages.md`](docs/my-messages.md): instalar y personalizar el mod `my-messages` (resalta tus mensajes).
+- [`docs/estilo-chat.md`](docs/estilo-chat.md): replicar el estilo del chat de Claude Code (skin, caja ámbar, negritas naranjas y reglas de formato).
 
 ## Instalador
 
