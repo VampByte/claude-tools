@@ -20,35 +20,54 @@ claude plugin install skins@hellosverre-mods
 
 ## 3. Skin `opencode`
 
-No es un archivo del repo: se crea pidiéndoselo a Claude.
+No es un archivo del repo ni se descarga: es un skin propio que Claude crea con la herramienta `design` de `skins`. Se guarda en los datos del plugin (`~/.claude/plugins/store/skins_hellosverre-mods-<código>.json`), así que **no viaja con el repo** y hay que crearlo en cada portátil. No edites ese archivo a mano.
 
-1. Ejecuta `/skins:skin-designer` y pide un skin con estos datos, y que lo aplique:
-   - Nombre: `opencode`
-   - Base: `tokyo-night`
-   - Colores: `user` `#9d7cd8`, `search` `#7fd88f`, `fg` `#e8e8e8`
+1. Abre una sesión nueva de Claude Code (con `skins` ya instalado).
+2. Pega este pedido:
 
-Qué pinta cada color:
+   ````
+   /skins:skin-designer Guarda y aplica este skin exactamente así, sin cambiar ni añadir colores:
+
+   ```json
+   {
+     "action": "save",
+     "name": "opencode",
+     "base": "tokyo-night",
+     "palette": { "user": "#9d7cd8", "search": "#7fd88f", "fg": "#e8e8e8" }
+   }
+   ```
+   ````
+
+3. Claude debe responder que lo guardó y lo aplicó (`saved opencode and applied it`). El cambio se ve al momento.
+4. Comprueba con `/skin list`: `opencode` aparece en la lista. Más adelante lo activas con `/skin opencode`.
+
+Los demás colores y las palabras del spinner salen de `tokyo-night`.
+
+Qué pinta cada color (según el código de `skins` 0.5.14):
 
 | Color | Dónde se ve |
 | --- | --- |
-| `user` | Títulos, números, marcador de prompt y spinner |
-| `search` | Código y filas de Glob y Grep |
+| `user` `#9d7cd8` | Títulos de nivel 1 y 2, números y duraciones, marcador de prompt, spinner, riel y barras de uso |
+| `search` `#7fd88f` | Código dentro del texto, y Glob y Grep |
+| `fg` `#e8e8e8` | Texto normal (y títulos de nivel 3 en adelante) |
 
-Volver atrás: `/skin tokyo-night`.
+> No lo repintes desde el panel de `/skin`: repintar un skin incluido crea uno llamado `my-<skin>`, no `opencode`.
 
-En el equipo original, estos ajustes de `skins` estaban así. Son generales, no forman parte del skin, y se cambian con `/skin`:
+### Ajustes generales
 
-| Ajuste | Valor |
-| --- | --- |
-| `icons` | `unicode` |
-| `prompt` | `left` |
-| `rail` | `false` |
-| `tables` | `on` |
-| `shimmer` | `false` |
-| `band` | `true` |
-| `markdown` | `true` |
-| `quiet` | `true` |
-| `charts` | `true` |
+No forman parte del skin. En el equipo original solo **tres difieren de los valores por defecto**:
+
+```
+/skin rail off
+/skin shimmer off
+/skin quiet on
+```
+
+Los demás están por defecto (por ejemplo `icons unicode`, `prompt left`, `tables on`, `band`, `markdown` y `charts` activados). `/skin list` muestra todos.
+
+### Volver atrás
+
+`/skin tokyo-night` cambia de skin. Para borrar el propio, pide a Claude: "borra el skin opencode". Para recuperar los ajustes por defecto: `/skin rail on`, `/skin shimmer on` y `/skin quiet off`.
 
 ## 4. Negritas naranjas
 
